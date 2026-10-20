@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Shoal mark: small fish that together read as one large fish. Many small positions, one hidden shape. For dark backgrounds. -->
+  <path fill="#2A9FE6" transform="translate(53 32) scale(1.2)" d="M7 0C3.6-4.6-1.6-4.6-4 0C-1.6 4.6 3.6 4.6 7 0ZM-2.6 0-7.4-4.2-6 0-7.4 4.2Z"/>
+  <path fill="#40B6EA" transform="translate(41.5 23.5) scale(1.05)" d="M7 0C3.6-4.6-1.6-4.6-4 0C-1.6 4.6 3.6 4.6 7 0ZM-2.6 0-7.4-4.2-6 0-7.4 4.2Z"/>
+  <path fill="#40B6EA" transform="translate(41.5 40.5) scale(1.05)" d="M7 0C3.6-4.6-1.6-4.6-4 0C-1.6 4.6 3.6 4.6 7 0ZM-2.6 0-7.4-4.2-6 0-7.4 4.2Z"/>
+  <path fill="#55CDE6" transform="translate(29 15.5) rotate(4) scale(.95)" d="M7 0C3.6-4.6-1.6-4.6-4 0C-1.6 4.6 3.6 4.6 7 0ZM-2.6 0-7.4-4.2-6 0-7.4 4.2Z"/>
+  <path fill="#55CDE6" transform="translate(29.5 32)" d="M7 0C3.6-4.6-1.6-4.6-4 0C-1.6 4.6 3.6 4.6 7 0ZM-2.6 0-7.4-4.2-6 0-7.4 4.2Z"/>
+  <path fill="#55CDE6" transform="translate(29 48.5) rotate(-4) scale(.95)" d="M7 0C3.6-4.6-1.6-4.6-4 0C-1.6 4.6 3.6 4.6 7 0ZM-2.6 0-7.4-4.2-6 0-7.4 4.2Z"/>
+  <path fill="#6FE3E0" transform="translate(17.5 24) rotate(-6) scale(.85)" d="M7 0C3.6-4.6-1.6-4.6-4 0C-1.6 4.6 3.6 4.6 7 0ZM-2.6 0-7.4-4.2-6 0-7.4 4.2Z"/>
+  <path fill="#6FE3E0" transform="translate(17.5 40) rotate(6) scale(.85)" d="M7 0C3.6-4.6-1.6-4.6-4 0C-1.6 4.6 3.6 4.6 7 0ZM-2.6 0-7.4-4.2-6 0-7.4 4.2Z"/>
+  <path fill="#8AF5E2" transform="translate(8 12.5) rotate(-22) scale(.75)" d="M7 0C3.6-4.6-1.6-4.6-4 0C-1.6 4.6 3.6 4.6 7 0ZM-2.6 0-7.4-4.2-6 0-7.4 4.2Z"/>
+  <path fill="#8AF5E2" transform="translate(8 51.5) rotate(22) scale(.75)" d="M7 0C3.6-4.6-1.6-4.6-4 0C-1.6 4.6 3.6 4.6 7 0ZM-2.6 0-7.4-4.2-6 0-7.4 4.2Z"/>
+</svg>

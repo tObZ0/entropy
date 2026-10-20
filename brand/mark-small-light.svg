@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Small-size Entropy mark (favicon, <=32px). For light backgrounds. -->
+  <rect x="-3.75" y="-3.75" width="7.50" height="7.50" rx="1.35" fill="#8F7E44" transform="translate(5.62 5.62) rotate(0.0)"/>
+  <rect x="-3.56" y="-3.56" width="7.11" height="7.11" rx="1.28" fill="#82723C" transform="translate(15.62 5.87) rotate(4.2)"/>
+  <rect x="-3.12" y="-3.12" width="6.23" height="6.23" rx="1.12" fill="#746533" transform="translate(26.68 7.28) rotate(13.0)"/>
+  <rect x="-3.56" y="-3.56" width="7.11" height="7.11" rx="1.28" fill="#82723C" transform="translate(5.48 15.64) rotate(-0.3)"/>
+  <rect x="-3.12" y="-3.12" width="6.23" height="6.23" rx="1.12" fill="#746533" transform="translate(16.03 16.86) rotate(4.6)"/>
+  <rect x="-2.48" y="-2.48" width="4.97" height="4.97" rx="0.89" fill="#67582A" transform="translate(26.96 18.76) rotate(-23.7)"/>
+  <rect x="-3.12" y="-3.12" width="6.23" height="6.23" rx="1.12" fill="#746533" transform="translate(7.27 26.51) rotate(-7.8)"/>
+  <rect x="-2.48" y="-2.48" width="4.97" height="4.97" rx="0.89" fill="#67582A" transform="translate(19.25 28.27) rotate(4.5)"/>
+  <rect x="-1.69" y="-1.69" width="3.37" height="3.37" rx="0.61" fill="#5A4C22" transform="translate(27.66 29.47) rotate(-28.3)"/>
+</svg>

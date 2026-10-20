@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Small-size Shoal mark (favicon, <=32px). For light backgrounds. -->
+  <path fill="#0866C6" transform="translate(22 16) scale(1.25)" d="M7 0C3.6-4.6-1.6-4.6-4 0C-1.6 4.6 3.6 4.6 7 0ZM-2.6 0-7.4-4.2-6 0-7.4 4.2Z"/>
+  <path fill="#11A0A6" transform="translate(10 8.5) rotate(-6)" d="M7 0C3.6-4.6-1.6-4.6-4 0C-1.6 4.6 3.6 4.6 7 0ZM-2.6 0-7.4-4.2-6 0-7.4 4.2Z"/>
+  <path fill="#11A0A6" transform="translate(10 23.5) rotate(6)" d="M7 0C3.6-4.6-1.6-4.6-4 0C-1.6 4.6 3.6 4.6 7 0ZM-2.6 0-7.4-4.2-6 0-7.4 4.2Z"/>
+</svg>
