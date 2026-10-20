@@ -10,6 +10,10 @@
   </head>
   <body>
     <div id="root"></div>
+    <!-- Lets Netlify detect the early-access form at deploy time. -->
+    <form name="early-access" data-netlify="true" netlify-honeypot="bot-field" hidden>
+      <input name="email" /><input name="x" /><input name="size" /><input name="bot-field" />
+    </form>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

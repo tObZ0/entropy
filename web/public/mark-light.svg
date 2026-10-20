@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Entropy mark: an ordered grid breaking apart into disorder. For light backgrounds. -->
+  <rect x="-4.00" y="-4.00" width="8.00" height="8.00" rx="1.44" fill="#8F7E44" transform="translate(7.0 7.0) rotate(0.0)"/>
+  <rect x="-3.90" y="-3.90" width="7.79" height="7.79" rx="1.40" fill="#86763E" transform="translate(18.85 7.74) rotate(-0.2)"/>
+  <rect x="-3.66" y="-3.66" width="7.32" height="7.32" rx="1.32" fill="#7D6D39" transform="translate(32.89 9.01) rotate(1.9)"/>
+  <rect x="-3.33" y="-3.33" width="6.65" height="6.65" rx="1.20" fill="#746533" transform="translate(44.69 9.25) rotate(0.5)"/>
+  <rect x="-3.90" y="-3.90" width="7.79" height="7.79" rx="1.40" fill="#86763E" transform="translate(7.8 19.31) rotate(2.0)"/>
+  <rect x="-3.66" y="-3.66" width="7.32" height="7.32" rx="1.32" fill="#7D6D39" transform="translate(19.71 19.96) rotate(-4.3)"/>
+  <rect x="-3.33" y="-3.33" width="6.65" height="6.65" rx="1.20" fill="#746533" transform="translate(32.38 21.44) rotate(13.3)"/>
+  <rect x="-2.90" y="-2.90" width="5.79" height="5.79" rx="1.04" fill="#6C5D2D" transform="translate(48.94 27.7) rotate(-32.2)"/>
+  <rect x="-3.66" y="-3.66" width="7.32" height="7.32" rx="1.32" fill="#7D6D39" transform="translate(8.06 32.07) rotate(10.1)"/>
+  <rect x="-3.33" y="-3.33" width="6.65" height="6.65" rx="1.20" fill="#746533" transform="translate(23.46 35.43) rotate(5.0)"/>
+  <rect x="-2.90" y="-2.90" width="5.79" height="5.79" rx="1.04" fill="#6C5D2D" transform="translate(34.76 33.9) rotate(-34.1)"/>
+  <rect x="-2.38" y="-2.38" width="4.77" height="4.77" rx="0.86" fill="#635428" transform="translate(55.15 40.13) rotate(-45.2)"/>
+  <rect x="-3.33" y="-3.33" width="6.65" height="6.65" rx="1.20" fill="#746533" transform="translate(10.25 43.72) rotate(-11.1)"/>
+  <rect x="-2.90" y="-2.90" width="5.79" height="5.79" rx="1.04" fill="#6C5D2D" transform="translate(21.97 47.34) rotate(-2.5)"/>
+  <rect x="-2.38" y="-2.38" width="4.77" height="4.77" rx="0.86" fill="#635428" transform="translate(43.42 49.26) rotate(35.2)"/>
+  <rect x="-1.80" y="-1.80" width="3.60" height="3.60" rx="0.65" fill="#5A4C22" transform="translate(60.16 54.96) rotate(19.6)"/>
+</svg>

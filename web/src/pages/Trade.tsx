@@ -10,6 +10,7 @@ import { getClearinghouseState, getMarkets, type AssetMeta, type ClearinghouseSt
 import { checkLinkability, type LinkFinding } from '../lib/linkability'
 import { buildPlan, maxSlicesFor, type Plan } from '../lib/planner'
 import { short, useWallet } from '../lib/wallet'
+import { usePageTitle } from '../site/ui'
 
 const usd = (n: number, d = 2) => `$${n.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d })}`
 const px = (n: number) => (n >= 1000 ? usd(n, 1) : `$${n.toPrecision(5)}`)
@@ -18,6 +19,7 @@ const px = (n: number) => (n >= 1000 ? usd(n, 1) : `$${n.toPrecision(5)}`)
 const needFor = (s: Plan['slices'][number]) => s.margin + s.notional * 0.001 + 0.5
 
 export default function Trade() {
+  usePageTitle('App')
   const wallet = useWallet()
   const [markets, setMarkets] = useState<AssetMeta[]>([])
   const [marketErr, setMarketErr] = useState<string>()

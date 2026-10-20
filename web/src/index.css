@@ -88,7 +88,7 @@ input, select { font: inherit; color: inherit; }
 /* App */
 .app { padding: 28px 0 80px; }
 .app-grid { display: grid; grid-template-columns: 360px minmax(0, 1fr); gap: 16px; align-items: start; }
-@media (max-width: 960px) { .app-grid { grid-template-columns: 1fr; } }
+@media (max-width: 960px) { .app-grid { grid-template-columns: minmax(0, 1fr); } }
 .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 20px; }
 .panel + .panel { margin-top: 16px; }
 .panel-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 0 16px; font-size: 15px; font-weight: 500; letter-spacing: -.01em; }
