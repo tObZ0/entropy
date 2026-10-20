@@ -22,7 +22,7 @@ export function PageHero({ eyebrow, title, lead, children }: { eyebrow: string; 
   )
 }
 
-export function CtaBand({ title = 'Ready to go unseen?', text = 'Plan a split with live Hyperliquid prices. Nothing is sent until you confirm.' }: { title?: string; text?: string }) {
+export function CtaBand({ title = 'Ready to go unseen?', text = 'Rehearse a split in paper mode with live Hyperliquid prices. No wallet needed.' }: { title?: string; text?: string }) {
   return (
     <section className="cta-band">
       <div className="wrap">

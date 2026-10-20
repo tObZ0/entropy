@@ -214,6 +214,10 @@ const DOCS: DocSection[] = [
       <li>Set up your trade, fund the slice accounts, then click <b>Open</b>.</li>
     </ol>
   </> },
+  { id: 'paper', title: 'Paper mode', body: <>
+    <p>The app opens in <b>Paper mode</b>. It runs the full flow with a simulated $1M balance and no wallet. Each slice fills against Hyperliquid’s live order book, so prices, slippage and fees are realistic, and slices liquidate if the price crosses them.</p>
+    <p>Paper trades are saved in your browser. Use <b>Reset paper account</b> to start over, and switch to <b>Live</b> at the top of the app when you’re ready to trade for real.</p>
+  </> },
   { id: 'accounts', title: 'Slice accounts', body: <>
     <p>Your signature produces up to 12 accounts. A plan with <i>k</i> slices uses the first <i>k</i>. They are normal Hyperliquid accounts: you can look them up on any explorer.</p>
     <p>To use them on another device, connect the same wallet and sign again. If Entropy says your wallet produced <b>different accounts than last time</b>, stop and do not fund the new ones. Your wallet does not sign the same way twice, so it cannot reliably rebuild accounts. Use an ordinary or hardware wallet with Entropy instead.</p>

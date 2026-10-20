@@ -17,7 +17,7 @@ export type Feature = {
   problem: string
   how: string[]
   details: [string, string][]
-  visual: 'split' | 'ladder' | 'tracker' | 'links' | 'close' | 'guard' | 'stops'
+  visual: 'split' | 'ladder' | 'tracker' | 'links' | 'close' | 'guard' | 'stops' | 'paper'
 }
 
 export const FEATURES: Feature[] = [
@@ -119,6 +119,26 @@ export const FEATURES: Feature[] = [
     visual: 'close',
   },
   {
+    slug: 'paper-mode',
+    name: 'Paper mode',
+    tagline: 'Rehearse a split with live prices.',
+    status: 'live',
+    summary: 'Run the whole flow with a simulated $1M balance. Fills walk Hyperliquid’s live order book, and slices liquidate if the price crosses them.',
+    problem: 'Splitting one position across many accounts is new. You should see how a split fills, moves and liquidates before real money is involved.',
+    how: [
+      'Open the app in Paper mode. No wallet is needed.',
+      'Plan any split, up to $5M, with the same controls as live trading.',
+      'Each slice fills against Hyperliquid’s real order book at that moment, including slippage and fees.',
+      'Positions mark to market every few seconds, and any slice whose liquidation price is crossed is liquidated.',
+    ],
+    details: [
+      ['Real prices, fake money', 'Every fill and mark uses live mainnet data. Only the balance is simulated.'],
+      ['Whale-sized rehearsals', 'Practice sizes far above the live cap to see how a big position splits.'],
+      ['Yours only', 'Paper trades are saved in your browser and never sent anywhere.'],
+    ],
+    visual: 'paper',
+  },
+  {
     slug: 'risk-guard',
     name: 'Risk guard',
     tagline: 'Defend the band without showing your hand.',
@@ -191,7 +211,8 @@ export const FAQ: [string, string][] = [
   ['Does Entropy use a mixer?', 'No. Entropy never routes funds through mixers or privacy pools and never moves funds between accounts on its own.'],
   ['What happens if I close the tab?', 'Open positions stay open on Hyperliquid. Slices that had not opened yet will not open. Come back, sign again, and your accounts and positions reappear.'],
   ['Which markets are supported?', 'Hyperliquid perpetuals. Other venues such as Solana perps and lending markets are on the roadmap.'],
-  ['Is there a size limit?', 'Yes, while Entropy is new, positions are capped at $50. The limit rises as the software proves itself.'],
+  ['Can I try it without risking money?', 'Yes. Paper mode runs the full flow with a simulated $1M balance. Fills use Hyperliquid’s live order book, so prices and slippage are real. Nothing is sent to Hyperliquid.'],
+  ['Is there a size limit?', 'Yes, while Entropy is new, live positions are capped at $50. The limit rises as the software proves itself. Paper mode allows up to $5M.'],
   ['Is it audited?', 'Not yet. Entropy is early software. Request signing has been checked against Hyperliquid’s official SDK, but there has been no independent audit.'],
   ['Is there a token?', 'No.'],
 ]

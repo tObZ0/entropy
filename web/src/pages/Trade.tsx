@@ -6,7 +6,8 @@ import { LIMITS } from '../config'
 import { checkDeterministic, deriveSliceAccounts, DERIVATION_MESSAGE } from '../lib/accounts'
 import { closeAll, runPlan, type RunEvent, type SliceRun } from '../lib/executor'
 import { usdSendFromWallet } from '../lib/hl/exchange'
-import { getClearinghouseState, getMarkets, type AssetMeta, type ClearinghouseState } from '../lib/hl/info'
+import { getAllMids, getClearinghouseState, getMarkets, type AssetMeta, type ClearinghouseState } from '../lib/hl/info'
+import { applyMarks, closePaperPosition, loadPaper, PAPER_MAX_POSITION_USD, PAPER_START_BALANCE, resetPaper, runPaperPlan, savePaper, slicePnl, type PaperBook, type PaperPosition } from '../lib/paper'
 import { checkLinkability, type LinkFinding } from '../lib/linkability'
 import { buildPlan, maxSlicesFor, type Plan } from '../lib/planner'
 import { short, useWallet } from '../lib/wallet'
@@ -18,16 +19,31 @@ const px = (n: number) => (n >= 1000 ? usd(n, 1) : `$${n.toPrecision(5)}`)
 /** USDC a slice account needs before its slice can open. */
 const needFor = (s: Plan['slices'][number]) => s.margin + s.notional * 0.001 + 0.5
 
+type Mode = 'paper' | 'live'
+const MODE_KEY = 'entropy:mode'
+const readMode = (): Mode => {
+  try {
+    return localStorage.getItem(MODE_KEY) === 'live' ? 'live' : 'paper'
+  } catch {
+    return 'paper'
+  }
+}
+
 export default function Trade() {
   usePageTitle('App')
   const wallet = useWallet()
+  const [mode, setModeState] = useState<Mode>(readMode)
+  const paper = mode === 'paper'
+  const [book, setBook] = useState<PaperBook>(loadPaper)
+  const [mids, setMids] = useState<Record<string, string>>({})
+  const [skipWaits, setSkipWaits] = useState(true)
   const [markets, setMarkets] = useState<AssetMeta[]>([])
   const [marketErr, setMarketErr] = useState<string>()
   const [coin, setCoin] = useState('BTC')
   const [isLong, setIsLong] = useState(true)
-  const [notional, setNotional] = useState(40)
+  const [notional, setNotional] = useState(() => (readMode() === 'paper' ? 250_000 : 40))
   const [leverage, setLeverage] = useState(5)
-  const [slices, setSlices] = useState(3)
+  const [slices, setSlices] = useState(() => (readMode() === 'paper' ? 6 : 3))
   const [band, setBand] = useState(0.4)
   const [delayMax, setDelayMax] = useState(90)
   const [seed, setSeed] = useState(0)
@@ -67,9 +83,52 @@ export default function Trade() {
   const assetReady = !!asset
   useEffect(() => {
     if (!asset) return
-    setPlan(buildPlan({ asset, isLong, notionalUsd: notional, leverage, slices, band, delayRange: [Math.min(15, delayMax), delayMax] }))
+    setPlan(buildPlan({ asset, isLong, notionalUsd: notional, leverage, slices, band, delayRange: [Math.min(15, delayMax), delayMax], maxUsd: paper ? PAPER_MAX_POSITION_USD : undefined }))
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [assetReady, coin, isLong, notional, leverage, slices, band, delayMax, seed])
+  }, [assetReady, coin, isLong, notional, leverage, slices, band, delayMax, seed, paper])
+
+  // Paper book: persist, mark to market, and liquidate crossed slices.
+  const bookRef = useRef(book)
+  useEffect(() => {
+    bookRef.current = book
+    savePaper(book)
+  }, [book])
+  useEffect(() => {
+    if (!paper) return
+    let live = true
+    const tick = () =>
+      getAllMids()
+        .then((m) => {
+          if (!live) return
+          setMids(m)
+          // Side effects stay outside the state updater, which React may run twice.
+          const r = applyMarks(bookRef.current, m)
+          if (r.events.length) {
+            setBook((b) => applyMarks(b, m).book)
+            setLog((l) => [...l, ...r.events.map((text) => ({ at: Date.now(), text, level: 'error' as const }))])
+          }
+        })
+        .catch(() => {})
+    tick()
+    const t = setInterval(tick, 4_000)
+    return () => {
+      live = false
+      clearInterval(t)
+    }
+  }, [paper])
+
+  function setMode(m: Mode) {
+    if (running) return
+    setModeState(m)
+    setRuns({})
+    setLog([])
+    if (m === 'live' && notional > LIMITS.maxPositionUsd) setNotional(LIMITS.maxPositionUsd)
+    try {
+      localStorage.setItem(MODE_KEY, m)
+    } catch {
+      /* not persisted */
+    }
+  }
 
   // Slice account balances and positions
   const refreshStates = useCallback(async () => {
@@ -132,7 +191,60 @@ export default function Trade() {
     }
   }
 
+  async function executePaper() {
+    if (!plan) return
+    setConfirming(false)
+    setRunning(true)
+    setRuns({})
+    setLog([])
+    const ctl = new AbortController()
+    abort.current = ctl
+    const id = `${Date.now().toString(36)}-${plan.input.asset.name}`
+    const pos: PaperPosition = { id, coin: plan.input.asset.name, isLong: plan.input.isLong, openedAt: Date.now(), fees: 0, slices: [] }
+    setBook((b) => ({ ...b, positions: [pos, ...b.positions] }))
+    try {
+      await runPaperPlan(
+        plan,
+        accounts?.map((a) => a.address) ?? [],
+        { skipWaits, slippage: LIMITS.slippage },
+        {
+          onSlice: (r) => setRuns((m) => ({ ...m, [r.index]: r })),
+          onLog: (e) => setLog((l) => [...l, e]),
+          onFill: (slice, fee) =>
+            setBook((b) => ({
+              ...b,
+              balance: b.balance - slice.margin - fee,
+              positions: b.positions.map((p) => (p.id === id ? { ...p, fees: p.fees + fee, slices: [...p.slices, slice] } : p)),
+            })),
+        },
+        ctl.signal,
+      )
+    } catch (e) {
+      setLog((l) => [...l, { at: Date.now(), text: e instanceof Error ? e.message : String(e), level: 'error' }])
+    } finally {
+      // Drop the position if no slice filled.
+      setBook((b) => ({ ...b, positions: b.positions.filter((p) => p.id !== id || p.slices.length > 0) }))
+      setRunning(false)
+    }
+  }
+
+  async function closePaper(p: PaperPosition) {
+    const a = markets.find((m) => m.name === p.coin)
+    if (!a) return
+    setBusy('close')
+    try {
+      const next = await closePaperPosition(book, p.id, a, LIMITS.slippage)
+      setBook(next)
+      setLog((l) => [...l, { at: Date.now(), text: `Closed paper ${p.coin} position`, level: 'ok' }])
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : String(e))
+    } finally {
+      setBusy(undefined)
+    }
+  }
+
   async function execute() {
+    if (paper) return executePaper()
     if (!plan || !accounts) return
     setConfirming(false)
     setRunning(true)
@@ -180,7 +292,24 @@ export default function Trade() {
   const balance = (a: string) => Number(states[a]?.withdrawable ?? 0)
   const blocking = plan ? plan.warnings.filter((w) => /safety limit|zero size|allows at most/.test(w)) : []
   const unfunded = plan && accounts ? plan.slices.filter((s) => balance(accounts[s.index].address) < needFor(s)) : []
-  const canRun = !!plan && !!accounts && !running && blocking.length === 0 && unfunded.length === 0
+  const paperCost = plan ? plan.totalMargin + plan.feesUsd : 0
+  const paperShort = paper && paperCost > book.balance
+  const canRun = paper
+    ? !!plan && !running && blocking.length === 0 && !paperShort
+    : !!plan && !!accounts && !running && blocking.length === 0 && unfunded.length === 0
+  const maxUsd = paper ? PAPER_MAX_POSITION_USD : LIMITS.maxPositionUsd
+  const paperOpen = book.positions.reduce(
+    (acc, p) => {
+      const mark = Number(mids[p.coin])
+      for (const s of p.slices) {
+        if (s.state !== 'open') continue
+        acc.margin += s.margin
+        if (mark) acc.pnl += slicePnl(p, s, mark)
+      }
+      return acc
+    },
+    { margin: 0, pnl: 0 },
+  )
   const maxN = maxSlicesFor(notional)
 
   return (
@@ -188,6 +317,17 @@ export default function Trade() {
       <div className="wrap">
         {marketErr && <div className="note err" style={{ marginBottom: 16 }}>Could not load Hyperliquid markets: {marketErr}</div>}
         {err && <div className="note err" style={{ marginBottom: 16 }}>{err}</div>}
+        <div className="mode-bar">
+          <div className="seg mode-seg">
+            <button className={paper ? 'on-paper' : ''} onClick={() => setMode('paper')} disabled={running}>Paper</button>
+            <button className={!paper ? 'on-live' : ''} onClick={() => setMode('live')} disabled={running}>Live</button>
+          </div>
+          <span className="muted" style={{ fontSize: 13 }}>
+            {paper
+              ? 'Practice with live Hyperliquid prices and a simulated $1M balance. No wallet, no real orders.'
+              : 'Real orders on Hyperliquid mainnet with real funds.'}
+          </span>
+        </div>
         <div className="app-grid">
           {/* Order form */}
           <div>
@@ -208,8 +348,8 @@ export default function Trade() {
                 </div>
               </div>
               <div className="field">
-                <label>Position size (USD) <span>limit {usd(LIMITS.maxPositionUsd, 0)}</span></label>
-                <input className="input mono" type="number" min={LIMITS.minSliceUsd} max={LIMITS.maxPositionUsd} value={notional} onChange={(e) => setNotional(Number(e.target.value) || 0)} />
+                <label>Position size (USD) <span>limit {usd(maxUsd, 0)}</span></label>
+                <input className="input mono" type="number" min={LIMITS.minSliceUsd} max={maxUsd} value={notional} onChange={(e) => setNotional(Number(e.target.value) || 0)} />
               </div>
               <div className="field">
                 <label>Leverage <b>{leverage}x</b></label>
@@ -229,7 +369,37 @@ export default function Trade() {
               </div>
             </div>
 
-            <div className="panel">
+            {paper && (
+              <div className="panel">
+                <div className="panel-title">
+                  Paper account
+                  <span className="tag soon">Simulated</span>
+                </div>
+                <div className="stats" style={{ gridTemplateColumns: '1fr 1fr' }}>
+                  <div className="stat"><div className="k">Free balance</div><div className="v">{usd(book.balance)}</div></div>
+                  <div className="stat"><div className="k">In positions</div><div className="v">{usd(paperOpen.margin)}</div></div>
+                  <div className="stat"><div className="k">Unrealized PnL</div><div className={`v ${paperOpen.pnl >= 0 ? 'ok' : 'danger'}`}>{usd(paperOpen.pnl)}</div></div>
+                  <div className="stat"><div className="k">Equity</div><div className="v">{usd(book.balance + paperOpen.margin + paperOpen.pnl)}</div></div>
+                </div>
+                <label className="row" style={{ fontSize: 13, color: 'var(--muted)', cursor: 'pointer' }}>
+                  <input type="checkbox" checked={skipWaits} onChange={(e) => setSkipWaits(e.target.checked)} /> Skip the random waits between slices
+                </label>
+                <div className="row" style={{ marginTop: 14 }}>
+                  <button
+                    className="btn btn-sm"
+                    disabled={running}
+                    onClick={() => window.confirm(`Reset the paper account to ${usd(PAPER_START_BALANCE, 0)} and clear all paper positions?`) && setBook(resetPaper())}
+                  >
+                    Reset paper account
+                  </button>
+                </div>
+                <p className="muted" style={{ fontSize: 12.5, margin: '14px 0 0' }}>
+                  Fills walk Hyperliquid's live order book, and slices liquidate if the price crosses them. Saved in this browser only.
+                </p>
+              </div>
+            )}
+
+            {!paper && <div className="panel">
               <div className="panel-title">
                 Slice accounts
                 {accounts && <span className="tag">{used} in use</span>}
@@ -291,7 +461,7 @@ export default function Trade() {
                   </div>
                 </>
               )}
-            </div>
+            </div>}
           </div>
 
           {/* Preview, execution, positions */}
@@ -354,12 +524,12 @@ export default function Trade() {
                     {running ? (
                       <button className="btn btn-danger" onClick={() => abort.current?.abort()}>Stop opening slices</button>
                     ) : (
-                      <button className="btn btn-primary btn-lg" disabled={!canRun} onClick={() => setConfirming(true)}>
-                        Open {plan.slices.length} slices
+                      <button className="btn btn-primary btn-lg" disabled={!canRun} onClick={() => (paper ? execute() : setConfirming(true))}>
+                        {paper ? `Paper trade ${plan.slices.length} slices` : `Open ${plan.slices.length} slices`}
                       </button>
                     )}
                     <span className="muted" style={{ fontSize: 13 }}>
-                      {!wallet.address ? 'Connect a wallet to continue.' : !accounts ? 'Create your slice accounts first.' : unfunded.length ? `${unfunded.length} slice account${unfunded.length > 1 ? 's need' : ' needs'} funding.` : blocking.length ? 'Fix the issues above.' : running ? 'Opening on a random schedule. Keep this tab open.' : 'Ready. Real orders on Hyperliquid mainnet.'}
+                      {paper ? (paperShort ? `Needs ${usd(paperCost)}; paper balance is ${usd(book.balance)}.` : blocking.length ? 'Fix the issues above.' : running ? (skipWaits ? 'Filling against the live book…' : 'Opening on a random schedule. Keep this tab open.') : 'Simulated against the live order book. Nothing is sent.') : !wallet.address ? 'Connect a wallet to continue.' : !accounts ? 'Create your slice accounts first.' : unfunded.length ? `${unfunded.length} slice account${unfunded.length > 1 ? 's need' : ' needs'} funding.` : blocking.length ? 'Fix the issues above.' : running ? 'Opening on a random schedule. Keep this tab open.' : 'Ready. Real orders on Hyperliquid mainnet.'}
                     </span>
                   </div>
                 </>
@@ -374,8 +544,43 @@ export default function Trade() {
             )}
 
             <div className="panel">
-              <div className="panel-title">Open positions</div>
-              {!accounts ? (
+              <div className="panel-title">{paper ? 'Paper positions' : 'Open positions'}</div>
+              {paper ? (
+                book.positions.length === 0 ? (
+                  <p className="muted" style={{ margin: 0, fontSize: 14 }}>No paper positions yet. Plan a split and paper trade it.</p>
+                ) : (
+                  <div className="scroll-x">
+                    <table className="tracker">
+                      <thead>
+                        <tr><th>Market</th><th className="r">Slices</th><th className="r">Size</th><th className="r">Entry</th><th className="r">Margin</th><th className="r">PnL</th><th className="r">Liq range</th><th /></tr>
+                      </thead>
+                      <tbody>
+                        {book.positions.map((p) => {
+                          const open = p.slices.filter((x) => x.state === 'open')
+                          const size = open.reduce((a, x) => a + x.size, 0)
+                          const entry = size ? open.reduce((a, x) => a + x.entryPx * x.size, 0) / size : 0
+                          const mark = Number(mids[p.coin])
+                          const pnl = p.slices.reduce((a, x) => a + (mark ? slicePnl(p, x, mark) : 0), 0)
+                          const liqs = open.map((x) => x.liqPx)
+                          const lost = p.slices.length - open.length
+                          return (
+                            <tr key={p.id}>
+                              <td className={p.isLong ? 'ok' : 'danger'}>{p.isLong ? 'Long' : 'Short'} {p.coin}</td>
+                              <td className="r">{open.length}{lost ? <span className="danger"> (+{lost} liq)</span> : ''}</td>
+                              <td className="r">{size.toPrecision(4)}</td>
+                              <td className="r">{entry ? px(entry) : '—'}</td>
+                              <td className="r">{usd(open.reduce((a, x) => a + x.margin, 0))}</td>
+                              <td className={`r ${pnl >= 0 ? 'ok' : 'danger'}`}>{usd(pnl)}</td>
+                              <td className="r">{liqs.length ? `${px(Math.min(...liqs))}–${px(Math.max(...liqs)).replace('$', '')}` : '—'}</td>
+                              <td className="r"><button className="btn btn-sm btn-danger" disabled={busy === 'close' || (running && p === book.positions[0])} onClick={() => closePaper(p)}>Close all</button></td>
+                            </tr>
+                          )
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )
+              ) : !accounts ? (
                 <p className="muted" style={{ margin: 0, fontSize: 14 }}>Create your slice accounts to see positions.</p>
               ) : positions.length === 0 ? (
                 <p className="muted" style={{ margin: 0, fontSize: 14 }}>No open positions in your slice accounts.</p>
@@ -403,6 +608,29 @@ export default function Trade() {
                       })}
                     </tbody>
                   </table>
+                </div>
+              )}
+              {paper && book.history.length > 0 && (
+                <div style={{ marginTop: 18 }}>
+                  <div className="eyebrow" style={{ marginBottom: 8 }}>Paper history</div>
+                  <div className="scroll-x">
+                    <table className="tracker">
+                      <tbody>
+                        {book.history.slice(0, 8).map((p) => {
+                          const pnl = p.slices.reduce((a, x) => a + (x.pnl ?? 0), 0) - p.fees
+                          const liq = p.slices.filter((x) => x.state === 'liquidated').length
+                          return (
+                            <tr key={p.id}>
+                              <td>{p.isLong ? 'Long' : 'Short'} {p.coin}</td>
+                              <td className="r muted">{p.slices.length} slices{liq ? `, ${liq} liquidated` : ''}</td>
+                              <td className={`r ${pnl >= 0 ? 'ok' : 'danger'}`}>{usd(pnl)} net</td>
+                              <td className="r muted">{new Date(p.closedAt ?? p.openedAt).toLocaleString()}</td>
+                            </tr>
+                          )
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               )}
               {log.length > 0 && (

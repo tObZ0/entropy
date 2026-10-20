@@ -126,6 +126,35 @@ function Stops() {
   )
 }
 
+function Paper() {
+  // Asks walked by a simulated market buy: filled levels in cream, the rest in grey.
+  const asks = [3.2, 1.4, 5.1, 2.2, 4.4, 1.8, 6.0, 2.9]
+  const filled = 4.6
+  return (
+    <svg viewBox="0 0 520 220" width="100%" role="img" aria-label="Paper fill walking the live order book">
+      <text x={20} y={18} fill={M} {...T}>LIVE ASKS · BTC-PERP</text>
+      {asks.map((sz, i) => {
+        const y = 32 + i * 21
+        const w = sz * 34
+        const used = Math.max(0, Math.min(1, (filled - i) / 1))
+        return (
+          <g key={i}>
+            <text x={20} y={y + 12} fill={M} {...T}>{(83040 + i * 2).toLocaleString('en-US')}</text>
+            <rect x={90} y={y} width={w} height={14} rx={3} fill={L} />
+            {used > 0 && <rect className="grow-x" style={{ animationDelay: `${i * 140}ms` }} x={90} y={y} width={w * used} height={14} rx={3} fill={A} opacity={0.8} />}
+          </g>
+        )
+      })}
+      <rect x={330} y={40} width={176} height={140} rx={12} fill="none" stroke={L} />
+      <text x={418} y={64} fill={M} textAnchor="middle" {...T}>PAPER FILL</text>
+      <text x={418} y={96} fill={A} textAnchor="middle" fontSize={20} fontFamily="var(--mono)">0.4962 BTC</text>
+      <text x={418} y={120} fill={M} textAnchor="middle" {...T}>avg $83,044.6</text>
+      <text x={418} y={140} fill={M} textAnchor="middle" {...T}>fee $18.55</text>
+      <text x={418} y={162} fill={D} textAnchor="middle" {...T}>no funds moved</text>
+    </svg>
+  )
+}
+
 export function FeatureVisual({ kind }: { kind: Feature['visual'] }) {
   switch (kind) {
     case 'split': return <Split />
@@ -143,6 +172,7 @@ export function FeatureVisual({ kind }: { kind: Feature['visual'] }) {
     case 'close': return <Close />
     case 'guard': return <Guard />
     case 'stops': return <Stops />
+    case 'paper': return <Paper />
   }
 }
 

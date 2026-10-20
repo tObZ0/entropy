@@ -12,6 +12,8 @@ export type PlanInput = {
   band: number
   /** Random gap between slice opens, seconds. */
   delayRange: [number, number]
+  /** Position size limit; defaults to the live-trading safety limit. */
+  maxUsd?: number
 }
 
 export type PlannedSlice = {
@@ -74,8 +76,9 @@ export function buildPlan(input: PlanInput): Plan {
   const refPx = asset.markPx
   const n = Math.min(input.slices, maxSlicesFor(notionalUsd))
   if (n < input.slices) warnings.push(`Reduced to ${n} slices so each stays above the $${LIMITS.minSliceUsd} order minimum.`)
-  if (notionalUsd > LIMITS.maxPositionUsd)
-    warnings.push(`Over the $${LIMITS.maxPositionUsd} safety limit. Lower the size or raise the limit in config.ts.`)
+  const maxUsd = input.maxUsd ?? LIMITS.maxPositionUsd
+  if (notionalUsd > maxUsd)
+    warnings.push(`Over the $${maxUsd.toLocaleString('en-US')} safety limit. Lower the size${input.maxUsd ? '' : ', practice bigger sizes in paper mode, or raise the limit in config.ts'}.`)
   if (leverage > asset.maxLeverage) warnings.push(`${asset.name} allows at most ${asset.maxLeverage}x.`)
 
   // Random sizes, each at least the order minimum.

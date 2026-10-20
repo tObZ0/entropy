@@ -41,7 +41,7 @@ export default function Home() {
           </p>
           <div className="hero-ctas">
             <Link className="btn btn-lg btn-primary" href="/app">Launch app</Link>
-            <Link className="btn btn-lg" href="/how-it-works">How it works</Link>
+            <Link className="btn btn-lg" href="/product/paper-mode">Try paper mode</Link>
           </div>
           <div className="trust-row">
             <span>Non-custodial</span><span>Keys stay on your device</span><span>No mixers</span><span>Built for Hyperliquid</span>

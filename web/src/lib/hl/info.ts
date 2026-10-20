@@ -65,6 +65,14 @@ export function getClearinghouseState(user: string): Promise<ClearinghouseState>
   return info({ type: 'clearinghouseState', user })
 }
 
+export type BookLevel = { px: string; sz: string; n: number }
+
+/** Live order book: [bids, asks], best price first. */
+export async function getL2Book(coin: string): Promise<[BookLevel[], BookLevel[]]> {
+  const res = await info<{ levels: [BookLevel[], BookLevel[]] }>({ type: 'l2Book', coin })
+  return res.levels
+}
+
 export type LedgerUpdate = {
   time: number
   hash: string
