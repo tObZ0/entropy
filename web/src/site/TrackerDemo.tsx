@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
+import { reducedMotion } from './motion'
 import LadderChart from '../components/LadderChart'
 
 // Illustrative numbers for the landing demo only.
@@ -20,7 +21,17 @@ const fmt = (n: number) => `$${n.toLocaleString('en-US')}`
 const usd = (s: string) => parseFloat(s.slice(1)) * (s.endsWith('M') ? 1e6 : 1e3)
 
 export default function TrackerDemo() {
-  const [split, setSplit] = useState(true)
+  const [split, setSplit] = useState(false)
+  const [auto, setAuto] = useState(true)
+  useEffect(() => {
+    if (!auto || reducedMotion()) return
+    const t = setInterval(() => setSplit((s) => !s), split ? 5200 : 2600)
+    return () => clearInterval(t)
+  }, [auto, split])
+  const pick = (v: boolean) => {
+    setAuto(false)
+    setSplit(v)
+  }
   const rows = split ? DEMO.slices : [DEMO.single]
   return (
     <div className="card" style={{ textAlign: 'left', maxWidth: 820, margin: '64px auto 0', padding: 20 }}>
@@ -28,8 +39,8 @@ export default function TrackerDemo() {
         <span className="eyebrow">Public tracker · BTC-PERP · simulated</span>
         <span className="spacer" />
         <div className="seg" style={{ width: 260 }}>
-          <button className={!split ? 'on-short' : ''} onClick={() => setSplit(false)}>One account</button>
-          <button className={split ? 'on-long' : ''} onClick={() => setSplit(true)}>With Entropy</button>
+          <button className={!split ? 'on-short' : ''} onClick={() => pick(false)}>One account</button>
+          <button className={split ? 'on-long' : ''} onClick={() => pick(true)}>With Entropy</button>
         </div>
       </div>
       <div className="scroll-x">
@@ -38,8 +49,8 @@ export default function TrackerDemo() {
             <tr><th>Wallet</th><th className="r">Size</th><th className="r">Lev</th><th className="r">Liq. price</th></tr>
           </thead>
           <tbody>
-            {rows.map((r) => (
-              <tr key={r.addr}>
+            {rows.map((r, i) => (
+              <tr key={`${split}-${r.addr}`} className="row-in" style={{ '--r': i } as CSSProperties}>
                 <td>
                   {r.addr}
                   {!split && <span className="alert">WHALE ALERT</span>}

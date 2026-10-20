@@ -1,0 +1,92 @@
+/* Motion. Everything here is switched off for prefers-reduced-motion. */
+
+/* Page enter */
+main { animation: page-in .5s cubic-bezier(.2,.7,.2,1) both; }
+@keyframes page-in { from { opacity: 0; transform: translateY(6px); } }
+
+/* Scroll reveal (classes added by useScrollReveal) */
+.rv { opacity: 0; transform: translateY(22px); transition: opacity .8s cubic-bezier(.2,.7,.2,1) var(--d, 0ms), transform .8s cubic-bezier(.2,.7,.2,1) var(--d, 0ms); }
+.rv.in { opacity: 1; transform: none; }
+
+/* Hero */
+.hero { isolation: isolate; }
+.entropy-field { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; mask-image: linear-gradient(to bottom, #000 55%, transparent); }
+.hero .wrap > * { animation: rise .9s cubic-bezier(.2,.7,.2,1) both; }
+.hero .wrap > :nth-child(1) { animation-delay: .05s; }
+.hero .wrap > :nth-child(3) { animation-delay: .55s; }
+.hero .wrap > :nth-child(4) { animation-delay: .7s; }
+.hero .wrap > :nth-child(5) { animation-delay: .85s; }
+.hero .wrap > :nth-child(6) { animation-delay: 1s; }
+.hero h1.words { animation: none; }
+.words .w { display: inline-block; animation: word-in .9s cubic-bezier(.2,.7,.2,1) both; animation-delay: calc(.12s + var(--w) * 70ms); }
+@keyframes rise { from { opacity: 0; transform: translateY(18px); } }
+@keyframes word-in { from { opacity: 0; transform: translateY(.45em) rotate(2deg); filter: blur(8px); } }
+.hero h1 em { background: linear-gradient(100deg, var(--accent) 20%, #fffbe6 45%, var(--accent) 70%); background-size: 250% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: shimmer 6s ease-in-out 1.4s infinite; }
+@keyframes shimmer { 0% { background-position: 100% 0; } 50%, 100% { background-position: -50% 0; } }
+
+/* Animated logo */
+.amark rect { transform-box: view-box; transform: translate(var(--sx), var(--sy)) rotate(var(--sr)) scale(var(--ss)); }
+.amark-loop rect { animation: amark 7s cubic-bezier(.65,0,.35,1) infinite; animation-delay: calc(var(--k) * 260ms); }
+@keyframes amark {
+  0%, 12% { transform: translate(var(--sx), var(--sy)) rotate(var(--sr)) scale(var(--ss)); }
+  38%, 62% { transform: translate(var(--ox), var(--oy)) rotate(0deg) scale(1); }
+  88%, 100% { transform: translate(var(--sx), var(--sy)) rotate(var(--sr)) scale(var(--ss)); }
+}
+.amark-hover rect { transition: transform .55s cubic-bezier(.2,.8,.2,1); transition-delay: calc(var(--k) * 40ms); }
+.brand:hover .amark-hover rect { transform: translate(var(--ox), var(--oy)) rotate(0deg) scale(1); }
+.brand .amark { width: 26px; height: 26px; }
+.cta-band .amark { display: block; margin: 0 auto; }
+
+/* Ticker */
+.ticker { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); overflow: hidden; height: 46px; mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
+.ticker-track { display: flex; width: max-content; animation: ticker 60s linear infinite; }
+.ticker:hover .ticker-track { animation-play-state: paused; }
+.ticker-group { display: flex; }
+.tick { display: inline-flex; gap: 10px; align-items: center; padding: 0 26px; height: 46px; font-family: var(--mono); font-size: 12.5px; color: var(--muted); white-space: nowrap; border-right: 1px solid var(--line); }
+.tick b { color: var(--text); font-weight: 500; }
+.tick .up { color: var(--ok); }
+.tick .down { color: var(--danger); }
+@keyframes ticker { to { transform: translateX(-50%); } }
+
+/* Cards: cursor spotlight and lift */
+.card { position: relative; }
+.card::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .3s; background: radial-gradient(360px circle at var(--mx, 50%) var(--my, 50%), rgba(232,226,189,.07), transparent 60%); }
+.card:hover::after { opacity: 1; }
+.feature-card, .incident { transition: border-color .2s, background .2s, transform .25s cubic-bezier(.2,.7,.2,1); }
+.feature-card:hover, .incident:hover { transform: translateY(-3px); }
+.read { transition: letter-spacing .25s; }
+.feature-card:hover .read, .incident:hover .read { letter-spacing: .02em; }
+
+/* Buttons */
+.btn-primary { position: relative; overflow: hidden; }
+.btn-primary::after { content: ""; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,.55) 50%, transparent 70%); transform: translateX(-120%); }
+.btn-primary:hover:not(:disabled)::after { transition: transform .7s ease; transform: translateX(120%); }
+.btn { transition: background .15s, border-color .15s, opacity .15s, transform .15s; }
+.btn:active:not(:disabled) { transform: scale(.97); }
+
+/* Diagrams */
+.flow { stroke-dasharray: 3 14; stroke-width: 1.5; animation: flow 1.6s linear infinite; opacity: .75; }
+@keyframes flow { to { stroke-dashoffset: -34; } }
+.grow-y { transform-box: fill-box; transform-origin: 50% 100%; animation: grow-y .8s cubic-bezier(.2,.7,.2,1) both; }
+@keyframes grow-y { from { transform: scaleY(0); } }
+.grow-x { transform-box: fill-box; transform-origin: 0 50%; animation: grow-x .9s cubic-bezier(.2,.7,.2,1) both; }
+@keyframes grow-x { from { transform: scaleX(0); } }
+.pulse { animation: pulse 1.6s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: .35; } }
+.row-in { animation: row-in .5s cubic-bezier(.2,.7,.2,1) both; animation-delay: calc(var(--r) * 70ms); }
+@keyframes row-in { from { opacity: 0; transform: translateX(-10px); } }
+.alert { animation: alert 1.2s ease-in-out infinite; }
+@keyframes alert { 50% { opacity: .55; } }
+
+/* FAQ */
+.faq-item p { animation: rise .35s ease both; }
+
+/* Pill dot */
+.pill::before { content: ""; width: 6px; height: 6px; border-radius: 99px; background: var(--accent); box-shadow: 0 0 0 0 rgba(232,226,189,.6); animation: ping 2s infinite; }
+@keyframes ping { 70% { box-shadow: 0 0 0 7px rgba(232,226,189,0); } 100% { box-shadow: 0 0 0 0 rgba(232,226,189,0); } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .rv { opacity: 1; transform: none; }
+  .hero h1 em { color: var(--accent); background: none; }
+}

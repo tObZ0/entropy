@@ -37,11 +37,11 @@ export default function LadderChart({ refPx, single, liqs, showSingle = true, he
       )}
       {liqs.map((l, i) => {
         const h = 14 + (l.weight / maxW) * (axisY - 30)
-        return <rect key={i} x={x(l.px) - 2.5} y={axisY - h} width={5} height={h} rx={2} fill="var(--accent)" opacity={0.55 + 0.45 * (l.weight / maxW)} />
+        return <rect key={`${i}-${l.px}`} className="grow-y" style={{ animationDelay: `${i * 60}ms` }} x={x(l.px) - 2.5} y={axisY - h} width={5} height={h} rx={2} fill="var(--accent)" opacity={0.55 + 0.45 * (l.weight / maxW)} />
       })}
       {showSingle && (
         <g>
-          <line x1={x(single)} x2={x(single)} y1={10} y2={axisY} stroke="var(--danger)" strokeWidth={2} strokeDasharray="5 4" />
+          <line className="pulse" x1={x(single)} x2={x(single)} y1={10} y2={axisY} stroke="var(--danger)" strokeWidth={2} strokeDasharray="5 4" />
           <text x={x(single)} y={axisY + 18} fill="var(--danger)" fontSize={12} textAnchor="middle" fontFamily="var(--mono)">liq {money(single)}</text>
         </g>
       )}

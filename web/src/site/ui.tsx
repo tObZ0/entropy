@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { Link } from '../router'
+import AnimatedMark from './AnimatedMark'
 
 export function usePageTitle(title: string, description?: string) {
   useEffect(() => {
@@ -25,7 +26,7 @@ export function CtaBand({ title = 'Ready to go unseen?', text = 'Plan a split wi
   return (
     <section className="cta-band">
       <div className="wrap">
-        <img src="/mark.svg" alt="" width={56} height={56} />
+        <AnimatedMark size={72} />
         <h2>{title}</h2>
         <p className="muted">{text}</p>
         <div className="hero-ctas">

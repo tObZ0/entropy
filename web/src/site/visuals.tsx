@@ -27,7 +27,8 @@ function Split() {
         return (
           <g key={i}>
             <path d={`M170 112 C 250 112, 250 ${y0 + h / 2}, 330 ${y0 + h / 2}`} stroke={L} fill="none" />
-            <rect x={330} y={y0} width={w * 0.6} height={h} rx={5} fill={A} opacity={0.5 + s * 2} />
+            <path className="flow" style={{ animationDelay: `${i * -0.3}s` }} d={`M170 112 C 250 112, 250 ${y0 + h / 2}, 330 ${y0 + h / 2}`} stroke={A} fill="none" />
+            <rect className="grow-x" style={{ animationDelay: `${i * 90}ms` }} x={330} y={y0} width={w * 0.6} height={h} rx={5} fill={A} opacity={0.5 + s * 2} />
           </g>
         )
       })}
@@ -158,13 +159,16 @@ export function FlowDiagram() {
     <svg viewBox="0 0 900 240" width="100%" role="img" aria-label="How Entropy works">
       {box(10, 88, 150, 'Your wallet', 'signs one message', true)}
       <path d="M160 120 H200" stroke={L} />
+      <path className="flow" d="M160 120 H200" stroke={A} />
       {box(200, 88, 170, 'Your browser', 'derives slice keys')}
       {[0, 1, 2, 3].map((i) => (
         <g key={i}>
           <path d={`M370 120 C 410 120, 410 ${28 + i * 56}, 450 ${28 + i * 56}`} stroke={L} fill="none" />
+          <path className="flow" style={{ animationDelay: `${i * -0.35}s` }} d={`M370 120 C 410 120, 410 ${28 + i * 56}, 450 ${28 + i * 56}`} stroke={A} fill="none" />
           <rect x={450} y={8 + i * 56} width={150} height={40} rx={10} fill="none" stroke={L} />
           <text x={525} y={33 + i * 56} fill="var(--text)" textAnchor="middle" {...T}>slice account {i + 1}</text>
           <path d={`M600 ${28 + i * 56} C 640 ${28 + i * 56}, 640 120, 690 120`} stroke={L} fill="none" />
+          <path className="flow" style={{ animationDelay: `${-0.8 + i * -0.35}s` }} d={`M600 ${28 + i * 56} C 640 ${28 + i * 56}, 640 120, 690 120`} stroke={A} fill="none" />
         </g>
       ))}
       {box(690, 88, 200, 'Hyperliquid', 'perps · public ledger', true)}

@@ -1,10 +1,16 @@
-import { useState } from 'react'
+import { Fragment, useState, type CSSProperties } from 'react'
 import { Link } from '../router'
 import { FAQ, FEATURES, INCIDENTS } from './content'
+import EntropyField from './EntropyField'
 import LiveStats from './LiveStats'
+import Ticker from './Ticker'
 import TrackerDemo from './TrackerDemo'
 import { CtaBand, usePageTitle } from './ui'
 import { FlowDiagram } from './visuals'
+
+const HEADLINE: [string, boolean][] = [
+  ['Hide', false], ['your', false], ['size', true], ['and', false], ['your', false], ['liquidation', true], ['price', true],
+]
 
 const STEPS = [
   ['Sign once', 'Your wallet signs one message. Entropy turns it into fresh trading accounts, in your browser. Keys never leave your device and are never stored.'],
@@ -19,10 +25,15 @@ export default function Home() {
   return (
     <main>
       <section className="hero">
+        <EntropyField />
         <div className="wrap">
           <Link href="/whitepaper" className="pill">Whitepaper v0.1 is out <span aria-hidden>→</span></Link>
-          <h1>
-            Hide your <em>size</em> and your <em>liquidation price</em>
+          <h1 className="words">
+            {HEADLINE.map(([w, hi], i) => (
+              <Fragment key={i}>
+                <span className="w" style={{ '--w': i } as CSSProperties}>{hi ? <em>{w}</em> : w}</span>{' '}
+              </Fragment>
+            ))}
           </h1>
           <p className="lead">
             Entropy splits one leveraged position across accounts that can't be linked. Trackers see a few ordinary
@@ -38,6 +49,8 @@ export default function Home() {
           <TrackerDemo />
         </div>
       </section>
+
+      <Ticker />
 
       <section className="section">
         <div className="wrap">

@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { Link, usePath } from '../router'
+import AnimatedMark from '../site/AnimatedMark'
 import { FEATURES, SITE } from '../site/content'
 import { short, useWallet } from '../lib/wallet'
 
@@ -43,7 +44,7 @@ export default function Header() {
     <header className="nav">
       <div className="wrap">
         <Link href="/" className="brand">
-          <img src="/mark.svg" alt="" />
+          <AnimatedMark size={26} mode="hover" />
           entropy
         </Link>
         <nav className="nav-links">

@@ -9,6 +9,7 @@ import { Brand, EarlyAccess, Faq, Risk, Security } from './site/Info'
 import { Docs, HowItWorks, PrivacyModel, Whitepaper } from './site/Learn'
 import NotFound from './site/NotFound'
 import { FeaturePage, ProductOverview } from './site/Product'
+import { useCardSpotlight, useScrollReveal } from './site/motion'
 
 function Page({ path }: { path: string }) {
   if (path === '/') return <Home />
@@ -32,6 +33,8 @@ function Page({ path }: { path: string }) {
 
 export default function App() {
   const path = usePath()
+  useScrollReveal(path)
+  useCardSpotlight()
   return (
     <WalletProvider>
       <Header />
