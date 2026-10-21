@@ -15,6 +15,7 @@ export default function Footer() {
               {SITE.x && <a className="muted" href={SITE.x} target="_blank" rel="noreferrer">X</a>}
               {SITE.telegram && <a className="muted" href={SITE.telegram} target="_blank" rel="noreferrer">Telegram</a>}
               {SITE.email && <a className="muted" href={`mailto:${SITE.email}`}>{SITE.email}</a>}
+              {SITE.github && <a className="muted" href={SITE.github} target="_blank" rel="noreferrer">GitHub</a>}
             </div>
           </div>
           <div>

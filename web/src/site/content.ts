@@ -6,6 +6,7 @@ export const SITE = {
   x: '',
   telegram: '',
   email: '',
+  github: 'https://github.com/tObZ0/entropy',
 }
 
 export type Feature = {
