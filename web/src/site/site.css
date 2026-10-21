@@ -104,3 +104,8 @@ em { font-style: normal; color: var(--accent); }
 .foot-grid a:not(.brand) { display: block; color: var(--muted); font-size: 14px; padding: 4px 0; }
 .foot-grid a:not(.brand):hover { color: var(--text); }
 .foot-bottom { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-top: 48px; padding-top: 22px; border-top: 1px solid var(--line); color: var(--faint); font-size: 13px; }
+
+/* Header: keep Early access visible on every screen size */
+.ea-short { display: none; }
+@media (max-width: 560px) { .ea-full { display: none; } .ea-short { display: inline; } .nav .wrap { gap: 12px; } .nav-right { gap: 8px; } }
+@media (max-width: 400px) { .brand-word { display: none; } }

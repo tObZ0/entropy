@@ -45,7 +45,7 @@ export default function Header() {
       <div className="wrap">
         <Link href="/" className="brand">
           <AnimatedMark size={26} mode="hover" />
-          entropy
+          <span className="brand-word">entropy</span>
         </Link>
         <nav className="nav-links">
           <Menu label="Product">
@@ -82,7 +82,7 @@ export default function Header() {
             )
           ) : (
             <>
-              <Link className="btn btn-sm hide-sm" href="/early-access">Get early access</Link>
+              <Link className="btn btn-sm ea-btn" href="/early-access"><span className="ea-full">Get early access</span><span className="ea-short">Early access</span></Link>
               <Link className="btn btn-sm btn-primary" href="/app">Launch app</Link>
             </>
           )}
