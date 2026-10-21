@@ -79,26 +79,41 @@ export function useCardSpotlight() {
 export function CountUp({ value, format }: { value: number; format: (n: number) => string }) {
   const ref = useRef<HTMLSpanElement>(null)
   const [shown, setShown] = useState(reducedMotion() ? value : 0)
+  const current = useRef(shown)
+  const counted = useRef(false)
   useEffect(() => {
     if (reducedMotion() || !ref.current) {
       setShown(value)
       return
     }
     let raf = 0
-    let started = false
-    // Never leave the number at zero if the observer doesn't fire.
-    const fallback = setTimeout(() => !started && setShown(value), 4000)
-    const obs = new IntersectionObserver(([e]) => {
-      if (!e.isIntersecting) return
-      started = true
-      obs.disconnect()
+    const animate = (from: number, ms: number) => {
       const t0 = performance.now()
       const tick = (t: number) => {
-        const p = Math.min(1, (t - t0) / 1400)
-        setShown(value * (1 - Math.pow(1 - p, 3)))
+        const p = Math.min(1, (t - t0) / ms)
+        current.current = from + (value - from) * (1 - Math.pow(1 - p, 3))
+        setShown(current.current)
         if (p < 1) raf = requestAnimationFrame(tick)
       }
       raf = requestAnimationFrame(tick)
+    }
+    // Later refreshes glide from the current number instead of restarting at zero.
+    if (counted.current) {
+      animate(current.current, 600)
+      return () => cancelAnimationFrame(raf)
+    }
+    // Never leave the number at zero if the observer doesn't fire.
+    const fallback = setTimeout(() => {
+      if (counted.current) return
+      counted.current = true
+      current.current = value
+      setShown(value)
+    }, 4000)
+    const obs = new IntersectionObserver(([e]) => {
+      if (!e.isIntersecting || counted.current) return
+      counted.current = true
+      obs.disconnect()
+      animate(0, 1400)
     })
     obs.observe(ref.current)
     return () => {

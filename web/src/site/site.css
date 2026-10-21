@@ -109,3 +109,7 @@ em { font-style: normal; color: var(--accent); }
 .ea-short { display: none; }
 @media (max-width: 560px) { .ea-full { display: none; } .ea-short { display: inline; } .nav .wrap { gap: 12px; } .nav-right { gap: 8px; } }
 @media (max-width: 400px) { .brand-word { display: none; } }
+
+/* Stat placeholder while live data loads */
+.stat-loading { display: inline-block; width: 120px; max-width: 70%; height: .8em; border-radius: 6px; background: linear-gradient(90deg, var(--surface-2), #1f1d16, var(--surface-2)); background-size: 200% 100%; animation: shimmer-bar 1.4s linear infinite; vertical-align: middle; }
+@keyframes shimmer-bar { to { background-position: -200% 0; } }
